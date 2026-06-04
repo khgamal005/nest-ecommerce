@@ -1,0 +1,3 @@
+
+@m
+   export class ProductModule{}
