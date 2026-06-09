@@ -1,78 +1,37 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
-
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-};
-
+import { ProductsService } from './products.service';
+import { Product } from './product.entity';
 
 @Controller('api/products')
 export class ProductsController {
-  private products: Product[] = [
-    {
-      id: 1,
-      name: 'iPhone 15',
-      price: 999,
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy S25',
-      price: 899,
-    },
-    {
-      id: 3,
-      name: 'Google Pixel 10',
-      price: 799,
-    },
-  ];
+  constructor(private readonly productsService: ProductsService) {}
 
   @Get('')
-  public getAllProducts(): Product[] {
-    return this.products;
+  public getAllProducts(): Promise<Product[]> {
+    return this.productsService.findAll();
   }
 
   @Post('')
-  public createProduct(@Body() newProduct: CreateProductDto): CreateProductDto {
-    const createdProduct: Product = {
-      ...newProduct,
-      id: this.products.length + 1,
-    };
-
-    this.products.push(createdProduct);
-
-    return createdProduct;
+  public createProduct(@Body() newProduct: CreateProductDto): Promise<Product> {
+    return this.productsService.create(newProduct);
   }
 
-@Get('/:id')
-public getProduct(@Param('id') id: string): Product | undefined {
-  const product= this.products.find((p) => p.id === Number(id));
-  if(!product) throw new NotFoundException(`Product with id ${id} not found`);
-  return product;
-}
-
-@Put('/:id')
-public updateProduct(@Param('id') id: string, @Body() updatedProduct: UpdateProductDto): Product | undefined {
-  const productIndex = this.products.findIndex((p) => p.id === Number(id));
-  if (productIndex === -1) {
-    throw new NotFoundException(`Product with id ${id} not found`);
+  @Get('/:id')
+  public getProduct(@Param('id') id: string): Promise<Product> {
+    return this.productsService.findOne(Number(id));
   }
-  this.products[productIndex] = { ...this.products[productIndex], ...updatedProduct };
-  return this.products[productIndex];
-}
 
-@Delete('/:id')
-public deleteProduct(@Param('id') id: string): void {
-  const productIndex = this.products.findIndex((p) => p.id === Number(id));
-  if (productIndex === -1) {
-    throw new NotFoundException(`Product with id ${id} not found`);
+  @Put('/:id')
+  public updateProduct(@Param('id') id: string, @Body() updatedProduct: UpdateProductDto): Promise<Product> {
+    return this.productsService.update(Number(id), updatedProduct);
   }
-  this.products.splice(productIndex, 1);
-}
 
-
+  @Delete('/:id')
+  public deleteProduct(@Param('id') id: string): Promise<void> {
+    return this.productsService.remove(Number(id));
+  }
 }
 
 
