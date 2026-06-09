@@ -9,7 +9,7 @@ type Product = {
 };
 
 
-@Controller('api/products')
+@Controller()
 export class ProductsController {
   private products: Product[] = [
     {
@@ -29,12 +29,12 @@ export class ProductsController {
     },
   ];
 
-  @Get('')
+  @Get('api/products')
   public getAllProducts(): Product[] {
     return this.products;
   }
 
-  @Post('')
+  @Post('api/products')
   public createProduct(@Body() newProduct: CreateProductDto): CreateProductDto {
     const createdProduct: Product = {
       ...newProduct,
@@ -46,7 +46,7 @@ export class ProductsController {
     return createdProduct;
   }
 
-@Get('/:id')
+@Get('api/products/:id')
 public getProduct(@Param('id') id: string): Product | undefined {
   const product= this.products.find((p) => p.id === Number(id));
   if(!product) throw new NotFoundException(`Product with id ${id} not found`);

@@ -1,6 +1,5 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto';
-import { UpdateProductDto } from './dtos/update-product.dto';
 
 type Product = {
   id: number;
@@ -9,7 +8,7 @@ type Product = {
 };
 
 
-@Controller('api/products')
+@Controller()
 export class ProductsController {
   private products: Product[] = [
     {
@@ -29,12 +28,12 @@ export class ProductsController {
     },
   ];
 
-  @Get('')
+  @Get('api/products')
   public getAllProducts(): Product[] {
     return this.products;
   }
 
-  @Post('')
+  @Post('api/products')
   public createProduct(@Body() newProduct: CreateProductDto): CreateProductDto {
     const createdProduct: Product = {
       ...newProduct,
@@ -46,34 +45,10 @@ export class ProductsController {
     return createdProduct;
   }
 
-@Get('/:id')
+@Get('api/products/:id')
 public getProduct(@Param('id') id: string): Product | undefined {
   const product= this.products.find((p) => p.id === Number(id));
   if(!product) throw new NotFoundException(`Product with id ${id} not found`);
   return product;
 }
-
-@Put('/:id')
-public updateProduct(@Param('id') id: string, @Body() updatedProduct: UpdateProductDto): Product | undefined {
-  const productIndex = this.products.findIndex((p) => p.id === Number(id));
-  if (productIndex === -1) {
-    throw new NotFoundException(`Product with id ${id} not found`);
-  }
-  this.products[productIndex] = { ...this.products[productIndex], ...updatedProduct };
-  return this.products[productIndex];
 }
-
-@Delete('/:id')
-public deleteProduct(@Param('id') id: string): void {
-  const productIndex = this.products.findIndex((p) => p.id === Number(id));
-  if (productIndex === -1) {
-    throw new NotFoundException(`Product with id ${id} not found`);
-  }
-  this.products.splice(productIndex, 1);
-}
-
-
-}
-
-
-

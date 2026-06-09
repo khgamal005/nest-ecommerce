@@ -9,7 +9,7 @@ type Product = {
 };
 
 
-@Controller('api/products')
+@Controller()
 export class ProductsController {
   private products: Product[] = [
     {
@@ -29,12 +29,12 @@ export class ProductsController {
     },
   ];
 
-  @Get('')
+  @Get('api/products')
   public getAllProducts(): Product[] {
     return this.products;
   }
 
-  @Post('')
+  @Post('api/products')
   public createProduct(@Body() newProduct: CreateProductDto): CreateProductDto {
     const createdProduct: Product = {
       ...newProduct,

@@ -9,7 +9,7 @@ type Product = {
 };
 
 
-@Controller('api/products')
+@Controller('')
 export class ProductsController {
   private products: Product[] = [
     {
