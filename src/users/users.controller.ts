@@ -1,5 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Res, ValidationPipe } from '@nestjs/common';
+import type { Response } from 'express';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { LoginUserDto } from './dtos/login-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -9,27 +11,37 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  public getAllUsers(): Promise<User[]> {
+  public findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  @Post()
+  @Post('/auth/register')
   public createUser(@Body() newUser: CreateUserDto): Promise<User> {
-    return this.usersService.create(newUser);
+    return this.usersService.register(newUser);
   }
 
-  @Get('/:id')
-  public getUser(@Param('id') id: string): Promise<User> {
-    return this.usersService.findOne(Number(id));
+  @Post('/auth/login')
+  public async loginUser(@Body() credentials: LoginUserDto, @Res({ passthrough: true }) res: Response): Promise<User> {
+    const { accessToken, user } = await this.usersService.login(credentials);
+    res.header('Authorization', `Bearer ${accessToken}`);
+    return user;
   }
 
-  @Put('/:id')
-  public updateUser(@Param('id') id: string, @Body() updatedUser: UpdateUserDto): Promise<User> {
-    return this.usersService.update(Number(id), updatedUser);
+  @Get(':id')
+  public findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.usersService.findOne(id);
   }
 
-  @Delete('/:id')
-  public deleteUser(@Param('id') id: string): Promise<void> {
-    return this.usersService.remove(Number(id));
+  @Put(':id')
+  public update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) updatedUser: UpdateUserDto,
+  ): Promise<User> {
+    return this.usersService.update(id, updatedUser);
+  }
+
+  @Delete(':id')
+  public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.usersService.remove(id);
   }
 }

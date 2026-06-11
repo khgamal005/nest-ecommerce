@@ -12,8 +12,10 @@ import { User } from './users/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true ,
-      envFilePath: '.env.dev' }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+    }),
     ProductModule,
     UserModule,
     ReviewsModule,
