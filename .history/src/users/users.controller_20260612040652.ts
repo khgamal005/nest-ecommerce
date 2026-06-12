@@ -1,10 +1,5 @@
-import { Body, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Res, ValidationPipe } from '@nestjs/common';
 import type { Response } from 'express';
-import { Public } from 'src/utils/decorators/public.decorator';
-import { UserRole } from 'src/utils/enums';
-import { Roles } from './decorators/user-role.decorators';
-import { AuthGuard } from './guards/auth.guard';
-import { RolesGuard } from './guards/roles.guard';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
@@ -15,20 +10,16 @@ import { User } from './user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.USER)
   @Get()
   public findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  @Public()
   @Post('/auth/register')
   public createUser(@Body() newUser: CreateUserDto): Promise<{ accessToken: string }> {
     return this.usersService.register(newUser);
   }
 
-  @Public()
   @Post('/auth/login')
   public async loginUser(@Body() credentials: LoginUserDto, @Res({ passthrough: true }) res: Response): Promise<{ accessToken: string }> {
     const { accessToken } = await this.usersService.login(credentials);
@@ -36,22 +27,19 @@ export class UsersController {
     return { accessToken };
   }
 
-  @Get('getCurrentUser')
-  public getCurrentUser(@Headers('authorization') authorization: string): Promise<User> {
-    const token = authorization?.replace('Bearer ', '');
-    return this.usersService.getCurrentUser(token);
+  @Get(':id')
+  public getCurrentUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.usersService.getCurrentUser(id);
   }
 
-  @UseGuards(AuthGuard)
-  @Put(':id')
+  @Put('getCurrentUser')
   public update(
-    @Param('id', ParseIntPipe) id: number,
+    @header('id', ParseIntPipe) id: number,
     @Body(new ValidationPipe()) updatedUser: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updatedUser);
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':id')
   public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.usersService.remove(id);

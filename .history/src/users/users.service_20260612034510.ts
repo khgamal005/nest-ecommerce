@@ -21,7 +21,7 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
-  async getCurrentUser(id: number): Promise<User> {
+  async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -44,7 +44,7 @@ export class UsersService {
     return { accessToken };
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
+  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string; user: User }> {
     const user = await this.userRepository.findOne({ where: { email: loginUserDto.email } });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -59,19 +59,13 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    await this.userRepository.update(id, updateUserDto);
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-    return user;
+    const user = await this.findOne(id);
+    Object.assign(user, updateUserDto);
+    return await this.userRepository.save(user);
   }
 
   async remove(id: number): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    const user = await this.findOne(id);
     await this.userRepository.remove(user);
   }
 
