@@ -17,8 +17,6 @@ export class UsersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @UseInterceptors(ClassSerializerInterceptor)
-
   @Get()
   public findAll(): Promise<User[]> {
     return this.usersService.findAll();
@@ -31,6 +29,7 @@ export class UsersController {
   }
 
   @Public()
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('/auth/login')
   public async loginUser(@Body() credentials: LoginUserDto, @Res({ passthrough: true }) res: Response): Promise<{ accessToken: string }> {
     const { accessToken } = await this.usersService.login(credentials);
@@ -38,8 +37,6 @@ export class UsersController {
     return { accessToken };
   }
 
-
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('getCurrentUser')
   public getCurrentUser(@Headers('authorization') authorization: string): Promise<User> {
     const token = authorization?.replace('Bearer ', '');

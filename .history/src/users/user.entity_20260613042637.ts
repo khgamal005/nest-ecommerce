@@ -20,7 +20,7 @@ export class User {
   role: UserRole;
 
   @Column({ type: 'varchar', length: '255' })
-  @Exclude()
+  @Exclude
   password: string;
 
   @Column({ type: 'boolean', default: true })

@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Res, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Res, UseGuards, ValidationPipe } from '@nestjs/common';
 import type { Response } from 'express';
 import { Public } from 'src/utils/decorators/public.decorator';
 import { UserRole } from 'src/utils/enums';
@@ -16,9 +16,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @UseInterceptors(ClassSerializerInterceptor)
-
+  @Roles(UserRole.admin)
   @Get()
   public findAll(): Promise<User[]> {
     return this.usersService.findAll();
@@ -38,8 +36,6 @@ export class UsersController {
     return { accessToken };
   }
 
-
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('getCurrentUser')
   public getCurrentUser(@Headers('authorization') authorization: string): Promise<User> {
     const token = authorization?.replace('Bearer ', '');
@@ -55,8 +51,7 @@ export class UsersController {
     return this.usersService.update(id, updatedUser);
   }
 
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.usersService.remove(id);

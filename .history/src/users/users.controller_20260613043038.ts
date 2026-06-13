@@ -16,8 +16,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Roles(UserRole.ADMIN)@UseInterceptors(ClassSerializerInterceptor)
 
   @Get()
   public findAll(): Promise<User[]> {

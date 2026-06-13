@@ -17,8 +17,6 @@ export class UsersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @UseInterceptors(ClassSerializerInterceptor)
-
   @Get()
   public findAll(): Promise<User[]> {
     return this.usersService.findAll();
@@ -38,8 +36,6 @@ export class UsersController {
     return { accessToken };
   }
 
-
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get('getCurrentUser')
   public getCurrentUser(@Headers('authorization') authorization: string): Promise<User> {
     const token = authorization?.replace('Bearer ', '');

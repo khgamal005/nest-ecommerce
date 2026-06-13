@@ -17,8 +17,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @UseInterceptors(ClassSerializerInterceptor)
-
+  
   @Get()
   public findAll(): Promise<User[]> {
     return this.usersService.findAll();

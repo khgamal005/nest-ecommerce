@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Col
 import { Review } from 'src/reviews/review.entity';
 import { Product } from 'src/products/product.entity';
 import { UserRole } from 'src/utils/enums';
-import { Exclude } from 'class-transformer';
 
 
 @Entity({ name: 'users' })
@@ -20,7 +19,7 @@ export class User {
   role: UserRole;
 
   @Column({ type: 'varchar', length: '255' })
-  @Exclude()
+  
   password: string;
 
   @Column({ type: 'boolean', default: true })
