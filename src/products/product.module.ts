@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsController } from './products.controlller';
 import { ProductsService } from './products.service';
@@ -7,6 +9,17 @@ import { Product } from './product.entity';
 @Module({
   controllers: [ProductsController],
   providers: [ProductsService],
-  imports: [TypeOrmModule.forFeature([Product])],
+  exports: [ProductsService],
+  imports: [
+    TypeOrmModule.forFeature([Product]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET')!,
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') as any },
+      }),
+    }),
+  ],
 })
 export class ProductModule {}

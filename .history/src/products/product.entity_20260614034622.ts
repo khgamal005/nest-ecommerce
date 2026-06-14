@@ -19,7 +19,7 @@ export class Product {
   @ManyToOne(() => User, user => user.products)
   user: User;
 
-  @OneToMany(() => Review, review => review.product )
+  @OneToMany(() => Review, review => review.product)
   reviews: Review[];
   
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

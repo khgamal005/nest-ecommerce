@@ -26,8 +26,8 @@ export class User {
   @Column({ type: 'boolean', default: true })
   isAccountVerified: boolean;
 
-  @OneToMany(() => User, user => user.product)
-  product: Product[];
+  @OneToMany(() => Product, product => product.user)
+  products: Product[];
   
   @OneToMany(() => Review, review => review.user)
   reviews: Review[];

@@ -4,7 +4,7 @@ import { UpdateReviewDto } from './dtos/update-review.dto';
 import { ReviewsService } from './reviews.service';
 import { Review } from './review.entity';
 
-@Controller('api/reviews')
+@Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
