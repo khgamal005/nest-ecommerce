@@ -1,11 +1,6 @@
-import { IsString, IsNotEmpty, IsNumber, IsPositive, MinLength, Min, Max, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsPositive, Min, Max, MinLength, IsOptional } from 'class-validator';
 
 export class UpdateReviewDto {
-  @IsOptional()
-  @IsNumber()
-  @IsPositive()
-  userId?: number;
-
   @IsOptional()
   @IsNumber()
   @IsPositive()
@@ -18,9 +13,4 @@ export class UpdateReviewDto {
   @IsNotEmpty()
   @MinLength(10)
   comment?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @IsPositive()
-  productId?: number;
 }

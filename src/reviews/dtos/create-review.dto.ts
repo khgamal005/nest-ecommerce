@@ -1,10 +1,6 @@
-import { IsString, IsNotEmpty, IsNumber, IsPositive, MinLength, Min, Max } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsPositive, Min, Max, MinLength } from 'class-validator';
 
 export class CreateReviewDto {
-  @IsNumber()
-  @IsPositive()
-  userId: number;
-
   @IsNumber()
   @IsPositive()
   @Min(1)

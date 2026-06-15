@@ -23,6 +23,9 @@ export class User {
   @Exclude()
   password: string;
 
+  @Column({ type: 'varchar', length: '255', nullable: true })
+  profileImage: string | null;
+
   @Column({ type: 'boolean', default: true })
   isAccountVerified: boolean;
 

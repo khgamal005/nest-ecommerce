@@ -8,6 +8,8 @@ import { AppService } from './app.service';
 import { ProductModule } from './products/product.module';
 import { UserModule } from './users/user.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { UploadModule } from './uploads/upload.module';
+import { MailModule } from './mail/mail.module';
 import { Product } from './products/product.entity';
 import { Review } from './reviews/review.entity';
 import { User } from './users/user.entity';
@@ -21,6 +23,8 @@ import { User } from './users/user.entity';
     ProductModule,
     UserModule,
     ReviewsModule,
+    UploadModule,
+    MailModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

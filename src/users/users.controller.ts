@@ -1,7 +1,12 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Res, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
-import type { Response } from 'express';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+import type { Request, Response } from 'express';
 import { Public } from 'src/utils/decorators/public.decorator';
 import { UserRole } from 'src/utils/enums';
+import { JwtPayload } from 'src/utils/type';
 import { Roles } from './decorators/user-role.decorators';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -44,6 +49,38 @@ export class UsersController {
   public getCurrentUser(@Headers('authorization') authorization: string): Promise<User> {
     const token = authorization?.replace('Bearer ', '');
     return this.usersService.getCurrentUser(token);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('profile/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(process.cwd(), 'uploads', 'users');
+          if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+          }
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, 'profile-' + uniqueSuffix + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  public uploadProfileImage(@Req() request: Request, @UploadedFile() file: Express.Multer.File): Promise<User> {
+    const userId = (request.user as JwtPayload).id;
+    const imageUrl = `/uploads/users/${file.filename}`;
+    return this.usersService.updateProfileImage(userId, imageUrl);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('profile/image')
+  public removeProfileImage(@Req() request: Request): Promise<User> {
+    const userId = (request.user as JwtPayload).id;
+    return this.usersService.removeProfileImage(userId);
   }
 
   @UseGuards(AuthGuard)

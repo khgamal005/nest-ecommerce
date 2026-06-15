@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserRole } from 'src/utils/enums';
 import { Review } from './review.entity';
 import { CreateReviewDto } from './dtos/create-review.dto';
 import { UpdateReviewDto } from './dtos/update-review.dto';
@@ -33,10 +34,10 @@ export class ReviewsService {
     return review;
   }
 
-  async create(createReviewDto: CreateReviewDto): Promise<Review> {
-    const user = await this.userRepository.findOne({ where: { id: createReviewDto.userId } });
+  async create(createReviewDto: CreateReviewDto, userId: number): Promise<Review> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException(`User with id ${createReviewDto.userId} not found`);
+      throw new NotFoundException(`User with id ${userId} not found`);
     }
 
     const product = await this.productRepository.findOne({ where: { id: createReviewDto.productId } });
@@ -53,23 +54,11 @@ export class ReviewsService {
     return await this.reviewRepository.save(newReview);
   }
 
-  async update(id: number, updateReviewDto: UpdateReviewDto): Promise<Review> {
+  async update(id: number, updateReviewDto: UpdateReviewDto, userId: number, userRole: UserRole): Promise<Review> {
     const review = await this.findOne(id);
 
-    if (updateReviewDto.userId) {
-      const user = await this.userRepository.findOne({ where: { id: updateReviewDto.userId } });
-      if (!user) {
-        throw new NotFoundException(`User with id ${updateReviewDto.userId} not found`);
-      }
-      review.user = user;
-    }
-
-    if (updateReviewDto.productId) {
-      const product = await this.productRepository.findOne({ where: { id: updateReviewDto.productId } });
-      if (!product) {
-        throw new NotFoundException(`Product with id ${updateReviewDto.productId} not found`);
-      }
-      review.product = product;
+    if (review.user.id !== userId && userRole !== UserRole.ADMIN) {
+      throw new ForbiddenException('You can only edit your own reviews');
     }
 
     if (updateReviewDto.rating) {
@@ -83,8 +72,13 @@ export class ReviewsService {
     return await this.reviewRepository.save(review);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId: number, userRole: UserRole): Promise<void> {
     const review = await this.findOne(id);
+
+    if (review.user.id !== userId && userRole !== UserRole.ADMIN) {
+      throw new ForbiddenException('You can only delete your own reviews');
+    }
+
     await this.reviewRepository.remove(review);
   }
 }

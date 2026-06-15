@@ -10,6 +10,7 @@ import { User } from './user.entity';
 import { AuthProvider } from './auth.provider';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RolesGuard } from './guards/roles.guard';
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') as any },
       }),
     }),
+    MailModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, AuthProvider, AuthGuard, RolesGuard],

@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { existsSync, unlinkSync } from 'fs';
+import { join } from 'path';
 import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -49,6 +51,30 @@ export class UsersService {
     }
     await this.userRepository.update(id, updateUserDto);
     return { ...user, ...updateUserDto } as User;
+  }
+
+  async updateProfileImage(userId: number, imageUrl: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    user.profileImage = imageUrl;
+    return await this.userRepository.save(user);
+  }
+
+  async removeProfileImage(userId: number): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    if (user.profileImage) {
+      const filePath = join(process.cwd(), 'uploads', 'users', user.profileImage.replace('/uploads/users/', ''));
+      if (existsSync(filePath)) {
+        unlinkSync(filePath);
+      }
+    }
+    user.profileImage = null;
+    return await this.userRepository.save(user);
   }
 
   async remove(id: number): Promise<void> {

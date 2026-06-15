@@ -7,6 +7,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtPayload } from 'src/utils/type';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthProvider {
@@ -14,6 +15,7 @@ export class AuthProvider {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
@@ -42,6 +44,12 @@ export class AuthProvider {
     }
     const payload: JwtPayload = { id: user.id, email: user.email, role: user.role };
     const accessToken = await this.generateJwt(payload);
+
+    await this.mailService.sendMail(
+      user.email,
+      'Login Notification',
+      `You logged in today at ${new Date().toLocaleString()}`,
+    );
 
     return { accessToken };
   }
