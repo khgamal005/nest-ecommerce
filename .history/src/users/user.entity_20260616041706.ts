@@ -30,12 +30,6 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   verificationToken: string | null;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  resetPasswordToken: string | null;
-
-  @Column({ type: 'timestamp', nullable: true })
-  resetPasswordExpires: Date | null;
-
   @OneToMany(() => Product, product => product.user)
   products: Product[];
   

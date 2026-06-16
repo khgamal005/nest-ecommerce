@@ -41,6 +41,18 @@ export class UsersService {
     return this.authProvider.login(loginUserDto);
   }
 
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    return this.authProvider.verifyEmail(token);
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return this.authProvider.forgotPassword(email);
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    return this.authProvider.resetPassword(token, password);
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {

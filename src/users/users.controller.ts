@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Headers, Param, ParseIntPipe, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
@@ -13,6 +13,8 @@ import { RolesGuard } from './guards/roles.guard';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 
@@ -36,6 +38,12 @@ export class UsersController {
   }
 
   @Public()
+  @Get('verify-email')
+  public async verifyEmail(@Query('token') token: string): Promise<{ message: string }> {
+    return this.usersService.verifyEmail(token);
+  }
+
+  @Public()
   @Post('/auth/login')
   public async loginUser(@Body() credentials: LoginUserDto, @Res({ passthrough: true }) res: Response): Promise<{ accessToken: string }> {
     const { accessToken } = await this.usersService.login(credentials);
@@ -43,6 +51,17 @@ export class UsersController {
     return { accessToken };
   }
 
+  @Public()
+  @Post('forgot-password')
+  public async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+    return this.usersService.forgotPassword(dto.email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  public async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    return this.usersService.resetPassword(dto.token, dto.password);
+  }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('getCurrentUser')
